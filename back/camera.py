@@ -2,8 +2,39 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import pygame
+import asyncio
+from prisma import Prisma
 
+# Inicializa o mixer de som e o cliente do banco de dados
 pygame.mixer.init()
+db = Prisma()
+
+async def salvar_no_banco(estado, amplitudes_maximas):
+    try:
+        await db.connect()
+        print("Conectado ao PostgreSQL...")
+
+        # Formata os dados no padrao que o Prisma espera para a tabela Amplitude
+        amplitudes_para_salvar = [
+            {"articulacao": nome, "anguloMaximo": float(valor)}
+            for nome, valor in amplitudes_maximas.items()
+        ]
+
+        # Cria a sessao e vincula as amplitudes em uma unica transacao
+        sessao_criada = await db.sessao.create(
+            data={
+                'estado': estado,
+                'amplitudes': {
+                    'create': amplitudes_para_salvar
+                }
+            }
+        )
+
+        print(f"Dados salvos com sucesso! ID da Sessao: {sessao_criada.id}")
+        await db.disconnect()
+
+    except Exception as e:
+        print(f"Erro ao salvar no banco: {e}")
 
 def tocar_som_aberta():
     try:
@@ -52,108 +83,119 @@ def verificar_estado_mao(angulos):
     else:
         return "ENTRE ABERTA"
 
-mp_hands = mp.solutions.hands
-mp_draw = mp.solutions.drawing_utils
+async def main():
+    mp_hands = mp.solutions.hands
+    mp_draw = mp.solutions.drawing_utils
 
-hands = mp_hands.Hands(
-    max_num_hands=1,
-    min_detection_confidence=0.7,
-    min_tracking_confidence=0.7
-)
+    hands = mp_hands.Hands(
+        max_num_hands=1,
+        min_detection_confidence=0.7,
+        min_tracking_confidence=0.7
+    )
 
-cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(0)
 
-dedos_landmarks = {
-    "Polegar": (2, 3, 4),
-    "Indicador": (5, 6, 8),
-    "Medio": (9, 10, 12),
-    "Anelar": (13, 14, 16),
-    "Minimo": (17, 18, 20)
-}
+    dedos_landmarks = {
+        "Polegar": (2, 3, 4),
+        "Indicador": (5, 6, 8),
+        "Medio": (9, 10, 12),
+        "Anelar": (13, 14, 16),
+        "Minimo": (17, 18, 20)
+    }
 
-# Variaveis para o delay (debounce)
-FRAMES_PARA_CONFIRMAR = 15  # Ajuste este numero para aumentar ou diminuir o delay
-contador_frames = 0
-estado_temporario = None
-estado_confirmado = None
-ultimo_estado_tocado = None
+    # Dicionario para armazenar o maior angulo atingido por cada dedo
+    amplitudes_maximas = {nome: 0.0 for nome in dedos_landmarks.keys()}
 
-while True:
-    ret, frame = cap.read()
+    FRAMES_PARA_CONFIRMAR = 15
+    contador_frames = 0
+    estado_temporario = None
+    estado_confirmado = None
+    ultimo_estado_tocado = None
 
-    if not ret:
-        break
+    while True:
+        ret, frame = cap.read()
 
-    frame = cv2.flip(frame, 1)
-    rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    results = hands.process(rgb)
+        if not ret:
+            break
 
-    estado_detectado_agora = None
+        frame = cv2.flip(frame, 1)
+        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        results = hands.process(rgb)
 
-    if results.multi_hand_landmarks:
-        for hand_landmarks in results.multi_hand_landmarks:
-            mp_draw.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+        estado_detectado_agora = None
 
-            h, w, _ = frame.shape
-            landmarks = hand_landmarks.landmark
+        if results.multi_hand_landmarks:
+            for hand_landmarks in results.multi_hand_landmarks:
+                mp_draw.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
-            def get_ponto(id):
-                lm = landmarks[id]
-                return [lm.x * w, lm.y * h]
+                h, w, _ = frame.shape
+                landmarks = hand_landmarks.landmark
 
-            angulos_atuais = {}
+                def get_ponto(id):
+                    lm = landmarks[id]
+                    return [lm.x * w, lm.y * h]
 
-            for nome, (id1, id2, id3) in dedos_landmarks.items():
-                p1 = get_ponto(id1)
-                p2 = get_ponto(id2)
-                p3 = get_ponto(id3)
+                angulos_atuais = {}
 
-                angulo = calcular_angulo(p1, p2, p3)
-                angulos_atuais[nome] = angulo
+                for nome, (id1, id2, id3) in dedos_landmarks.items():
+                    p1 = get_ponto(id1)
+                    p2 = get_ponto(id2)
+                    p3 = get_ponto(id3)
 
-                cv2.circle(frame, tuple(map(int, p1)), 5, (255, 0, 0), -1)
-                cv2.circle(frame, tuple(map(int, p2)), 5, (0, 255, 0), -1)
-                cv2.circle(frame, tuple(map(int, p3)), 5, (0, 0, 255), -1)
+                    angulo = calcular_angulo(p1, p2, p3)
+                    angulos_atuais[nome] = angulo
 
-            estado_detectado_agora = verificar_estado_mao(angulos_atuais)
+                    # Atualiza a amplitude maxima se o angulo atual for o maior ja registrado
+                    if angulo > amplitudes_maximas[nome]:
+                        amplitudes_maximas[nome] = round(angulo, 2)
 
-    # Logica de delay: So confirma o estado se ele se manter pelo numero de frames definido
-    if estado_detectado_agora == estado_temporario:
-        contador_frames += 1
-    else:
-        estado_temporario = estado_detectado_agora
-        contador_frames = 0
+                    cv2.circle(frame, tuple(map(int, p1)), 5, (255, 0, 0), -1)
+                    cv2.circle(frame, tuple(map(int, p2)), 5, (0, 255, 0), -1)
+                    cv2.circle(frame, tuple(map(int, p3)), 5, (0, 0, 255), -1)
 
-    if contador_frames >= FRAMES_PARA_CONFIRMAR:
-        estado_confirmado = estado_temporario
+                estado_detectado_agora = verificar_estado_mao(angulos_atuais)
 
-    # Logica de tocar o som apenas quando o estado confirmado muda
-    if estado_confirmado is not None and estado_confirmado != ultimo_estado_tocado:
-        if estado_confirmado == "PALMA ABERTA":
-            tocar_som_aberta()
-        elif estado_confirmado == "ENTRE ABERTA":
-            tocar_som_entreaberta()
-        elif estado_confirmado == "PALMA FECHADA":
-            tocar_som_fechada()
-        
-        ultimo_estado_tocado = estado_confirmado
-
-    # Mostra na tela o estado confirmado (e nao o temporario)
-    if estado_confirmado is not None:
-        if estado_confirmado == "PALMA ABERTA":
-            cor = (0, 255, 0)
-        elif estado_confirmado == "PALMA FECHADA":
-            cor = (0, 0, 255)
+        if estado_detectado_agora == estado_temporario:
+            contador_frames += 1
         else:
-            cor = (0, 255, 255)
+            estado_temporario = estado_detectado_agora
+            contador_frames = 0
 
-        cv2.putText(frame, estado_confirmado, (50, 50),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, cor, 3)
+        if contador_frames >= FRAMES_PARA_CONFIRMAR:
+            estado_confirmado = estado_temporario
 
-    cv2.imshow("Analise de Movimento", frame)
+        if estado_confirmado is not None and estado_confirmado != ultimo_estado_tocado:
+            if estado_confirmado == "PALMA ABERTA":
+                tocar_som_aberta()
+            elif estado_confirmado == "ENTRE ABERTA":
+                tocar_som_entreaberta()
+            elif estado_confirmado == "PALMA FECHADA":
+                tocar_som_fechada()
+            
+            ultimo_estado_tocado = estado_confirmado
 
-    if cv2.waitKey(1) & 0xFF == 27:
-        break
+        if estado_confirmado is not None:
+            if estado_confirmado == "PALMA ABERTA":
+                cor = (0, 255, 0)
+            elif estado_confirmado == "PALMA FECHADA":
+                cor = (0, 0, 255)
+            else:
+                cor = (0, 255, 255)
 
-cap.release()
-cv2.destroyAllWindows()
+            cv2.putText(frame, estado_confirmado, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, cor, 3)
+
+        cv2.imshow("Analise de Movimento", frame)
+
+        # Se apertar ESC, salva no banco de dados e fecha o programa
+        if cv2.waitKey(1) & 0xFF == 27:
+            if estado_confirmado is not None:
+                print("Salvando dados... Nao feche o terminal ainda.")
+                await salvar_no_banco(estado_confirmado, amplitudes_maximas)
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    # Inicia o loop assincrono
+    asyncio.run(main())

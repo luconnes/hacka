@@ -1,0 +1,26 @@
+generator client {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Sessao {
+  id         Int         @id @default(autoincrement())
+  estado     String
+  criadoEm   DateTime    @default(now())
+  amplitudes Amplitude[]
+}
+
+model Amplitude {
+  id           Int    @id @default(autoincrement())
+  sessaoId     Int
+  articulacao  String
+  anguloMaximo Float
+
+  sessao Sessao @relation(fields: [sessaoId], references: [id], onDelete: Cascade)
+}
