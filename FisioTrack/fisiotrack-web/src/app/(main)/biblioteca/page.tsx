@@ -5,15 +5,15 @@ export default function Biblioteca() {
       <header className="mb-8">
         <h1 className="font-headline-xl text-primary font-bold mb-2">Biblioteca de Exercícios</h1>
         <p className="font-body-lg text-on-surface-variant max-w-2xl">
-          Escolha sua rotina diária para manter sua mobilidade e saúde em dia. Foque na execução lenta e constante.
+          Exercícios focados na reabilitação e mobilidade das mãos. Execute lentamente e respeite seus limites.
         </p>
       </header>
 
-      {/* Tab Switches (Chips for Accessibility) */}
+      {/* Tab Switches */}
       <div className="flex flex-wrap gap-gutter mb-xl">
         <button className="bg-primary text-on-primary px-xl py-md rounded-full font-button text-button shadow-lg flex items-center gap-2 border-none">
           <span className="material-symbols-outlined">assignment</span>
-          Meu Exame Fisico
+          Meu Exame Físico
         </button>
         <button className="bg-surface-container-highest text-on-surface-variant px-xl py-md rounded-full font-button text-button hover:bg-surface-container-high flex items-center gap-2 border-2 border-transparent">
           <span className="material-symbols-outlined">directions_walk</span>
@@ -32,25 +32,26 @@ export default function Biblioteca() {
         </div>
         <div>
           <h2 className="font-headline-md text-headline-md text-on-surface mb-xs">Meta do Dia</h2>
-          <p className="font-body-md text-body-md text-on-surface-variant">Você concluiu 2 de 3 exercícios prescritos para hoje. Continue assim!</p>
+          <p className="font-body-md text-body-md text-on-surface-variant">Você concluiu 2 de 3 exercícios de mão prescritos para hoje. Continue assim!</p>
         </div>
       </div>
 
       {/* Exercise Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Card 1: Extensão de Joelho */}
+
+        {/* Card 1: Flexão de Dedos */}
         <div className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
           <div className="h-48 bg-surface-container overflow-hidden">
             <img
-              alt="Extensão de Joelho"
+              alt="Flexão de Dedos"
               className="w-full h-full object-cover"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDw4xSnOFnPlTxQAwxKj0Xu_QuLzyQvUUzfmqq5fR5AEi4m86TylM4Snn9W2-OS4pmkqhlpMhWWPPhPGdaqVfpHH094etpIvGO_240aJw8PlVWZnqdO3R5FI7y9SCQX9-pP_HQtreHWYs7bi1vFsVJ-nXk0IdhbBOB2oKkwBrK2gUy0PVSOWUSShjxD7iwYwb_s5hfN8hjVqUmBxY1Bs2pUkqq9TGMDOOENbCVzHoVzynU5rQu2H48EnRB-oxDKMWW4CSdCrQ8rMxAH"
+              src="/flexao_dedos.png"
             />
           </div>
           <div className="p-md flex-1 flex flex-col justify-between">
             <div>
               <div className="flex justify-between items-start mb-base">
-                <h3 className="font-headline-md text-[20px] text-on-surface">Extensão de Joelho</h3>
+                <h3 className="font-headline-md text-[20px] text-on-surface">Flexão de Dedos</h3>
                 <span className="bg-secondary-container text-on-secondary-container px-sm py-xs rounded-lg font-label-lg text-[14px]">3x15</span>
               </div>
               <div className="flex flex-col gap-2 mb-lg text-on-surface-variant">
@@ -71,25 +72,25 @@ export default function Biblioteca() {
           </div>
         </div>
 
-        {/* Card 2: Fortalecimento de Quadríceps */}
+        {/* Card 2: Aperto com Bola */}
         <div className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
           <div className="h-48 bg-surface-container overflow-hidden">
             <img
-              alt="Fortalecimento de Quadríceps"
+              alt="Aperto com Bola"
               className="w-full h-full object-cover"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxBSFXX7ZON0Ci6tSARlAHcmUKUQJ9QYdZeucjmIb4QZfh1PMOiPeFPKYasxZ_ng8wPRkrPGZyKvxWq8sIqMQT1b5jo8kYuqxJrC1S2FAiKSVvqHLl6z5vBhmmi0wZHmCWKyAm0_NInncsqLF96Zo7eGtKAgi3lLsccGiIujckHtUaGRGR6DdPju54bWvLeF6uiGWat3N10S4Q7GnynTPuqZYsnqWK11lnag1xfirq6DBx7O0k3hVWJAYZM69O1xh0-rx_PZLupUb5"
+              src="/aperto_bola.png"
             />
           </div>
           <div className="p-md flex-1 flex flex-col justify-between">
             <div>
               <div className="flex justify-between items-start mb-base">
-                <h3 className="font-headline-md text-[20px] text-on-surface">Quadríceps</h3>
+                <h3 className="font-headline-md text-[20px] text-on-surface">Aperto com Bola</h3>
                 <span className="bg-secondary-container text-on-secondary-container px-sm py-xs rounded-lg font-label-lg text-[14px]">2x20</span>
               </div>
               <div className="flex flex-col gap-2 mb-lg text-on-surface-variant">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-[20px]">schedule</span>
-                  <span className="font-body-md text-[14px]">15 minutos</span>
+                  <span className="font-body-md text-[14px]">12 minutos</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-[20px]">fitness_center</span>
@@ -104,19 +105,19 @@ export default function Biblioteca() {
           </div>
         </div>
 
-        {/* Card 3: Mobilidade de Tornozelo */}
+        {/* Card 3: Extensão de Dedos com Elástico */}
         <div className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
           <div className="h-48 bg-surface-container overflow-hidden">
             <img
-              alt="Mobilidade de Tornozelo"
+              alt="Extensão de Dedos com Elástico"
               className="w-full h-full object-cover"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmMvgx8JGva6XQnSmKu43_mr-CwJRauCAlhbrRoGjTv5nyLYMa7f1VF5aWJ-ApjgNMcV5Ild1O3Yr4MAGaFoS9nNfdEuJyd2Sis8KrT5ubLqdU9mtX5WyBg7CcwQWMHVXH9bjd8WGH-lDNj4PtBIC8ArlQHvaLGW5k2GbaLbsjKUZsvqsFnLAlAgR9asf-KnZX8pKNzlINKBvt5qar3-VBy1NB8NoK0WXP24PGBgAFp40AcDSmWiLlUmv8qr1y8VcoshbZQuoYNfoG"
+              src="/extensao_elastico.png"
             />
           </div>
           <div className="p-md flex-1 flex flex-col justify-between">
             <div>
               <div className="flex justify-between items-start mb-base">
-                <h3 className="font-headline-md text-[20px] text-on-surface">Mobilidade</h3>
+                <h3 className="font-headline-md text-[20px] text-on-surface">Extensão com Elástico</h3>
                 <span className="bg-secondary-container text-on-secondary-container px-sm py-xs rounded-lg font-label-lg text-[14px]">3x12</span>
               </div>
               <div className="flex flex-col gap-2 mb-lg text-on-surface-variant">
@@ -137,19 +138,20 @@ export default function Biblioteca() {
           </div>
         </div>
 
-        {/* Special Recommendation Card */}
+        {/* Dica do Fisioterapeuta */}
         <div className="bg-tertiary-container text-on-tertiary-container rounded-xl p-lg flex flex-col justify-between border border-outline-variant md:col-span-2 lg:col-span-3 lg:w-2/3 mt-4">
           <div>
             <span className="material-symbols-outlined text-[48px] mb-md" style={{ fontVariationSettings: '"FILL" 1' }}>medical_information</span>
             <h3 className="font-headline-md text-headline-md mb-base">Dica do Fisioterapeuta</h3>
             <p className="font-body-md text-body-md mb-lg">
-              Lembre-se de manter a respiração constante durante os movimentos. Não prenda o ar. Se sentir qualquer dor aguda, pare imediatamente e nos avise através do chat.
+              Lembre-se de manter a respiração constante durante os movimentos das mãos. Não force além do confortável. Se sentir qualquer dor aguda nos dedos ou punho, pare imediatamente e nos avise.
             </p>
           </div>
           <button className="w-fit px-8 h-touch-target bg-surface-container-lowest text-tertiary rounded-xl font-button text-button border-2 border-tertiary hover:bg-surface-container-low transition-colors">
             Ler todas as recomendações
           </button>
         </div>
+
       </div>
     </main>
   );
